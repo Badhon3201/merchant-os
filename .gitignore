@@ -1,0 +1,6 @@
+node_modules
+.env
+**/.env
+apps/api/generated/
+apps/api/dist/
+*.tsbuildinfo
