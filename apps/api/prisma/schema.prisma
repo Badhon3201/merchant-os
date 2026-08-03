@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -13,128 +8,105 @@ datasource db {
 }
 
 model Company {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String?
-  phone     String?
-  address   String?
-  logo      String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  users             User[]
-  roles             Role[]
-  customers         Customer[]
-  categories        Category[]
+  id                Int               @id @default(autoincrement())
+  name              String
+  email             String?
+  phone             String?
+  address           String?
+  logo              String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  activities        Activity[]
   brands            Brand[]
-  products          Product[]
-  variants          ProductVariant[]
+  categories        Category[]
+  customers         Customer[]
+  expenses          Expense[]
+  expenseCategories ExpenseCategory[]
   inventoryLogs     InventoryLog[]
-  stockAdjustments  StockAdjustment[]
+  invoices          Invoice[]
+  notifications     Notification[]
   orders            Order[]
   payments          Payment[]
-  invoices          Invoice[]
-  expenseCategories ExpenseCategory[]
-  expenses          Expense[]
-  notifications     Notification[]
-  activities        Activity[]
+  products          Product[]
+  variants          ProductVariant[]
+  roles             Role[]
   settings          Setting[]
+  stockAdjustments  StockAdjustment[]
+  users             User[]
 }
 
-
 model User {
-  id        Int      @id @default(autoincrement())
-  companyId Int
-
-  name      String
-  email     String
-  password  String
-
-  phone     String?
-  avatar    String?
-
-  isActive  Boolean  @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company       Company @relation(fields: [companyId], references: [id])
-
+  id            Int               @id @default(autoincrement())
+  companyId     Int
+  name          String
+  email         String
+  password      String
+  refreshToken  String?
+  phone         String?
+  avatar        String?
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
   roleId        Int?
-  role          Role?   @relation(fields: [roleId], references: [id])
-
-  createdOrders Order[]
-  payments      Payment[]
+  activities    Activity[]
   expenses      Expense[]
   inventoryLogs InventoryLog[]
-  adjustments   StockAdjustment[]
   notifications Notification[]
-  activities    Activity[]
+  createdOrders Order[]
+  payments      Payment[]
+  adjustments   StockAdjustment[]
+  company       Company           @relation(fields: [companyId], references: [id])
+  role          Role?             @relation(fields: [roleId], references: [id])
 
   @@unique([companyId, email])
   @@index([companyId])
 }
 
-
 model Role {
-  id        Int      @id @default(autoincrement())
-  companyId Int
-
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id          Int              @id @default(autoincrement())
+  companyId   Int
+  name        String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   company     Company          @relation(fields: [companyId], references: [id])
-  users       User[]
   permissions RolePermission[]
+  users       User[]
 
   @@unique([companyId, name])
   @@index([companyId])
 }
 
-
 model Permission {
-  id        Int      @id @default(autoincrement())
-
+  id        Int              @id @default(autoincrement())
   name      String
   resource  String
   action    String
-
-  createdAt DateTime @default(now())
-
-  roles RolePermission[]
+  createdAt DateTime         @default(now())
+  roles     RolePermission[]
 
   @@unique([resource, action])
 }
 
-
 model RolePermission {
   roleId       Int
   permissionId Int
-
-  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
 }
 
-
 model Customer {
-  id        Int      @id @default(autoincrement())
-  companyId Int
-
-  name      String
-  email     String?
-  phone     String?
-
-  notes     String?
-  isFavorite Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company    Company            @relation(fields: [companyId], references: [id])
+  id         Int               @id @default(autoincrement())
+  companyId  Int
+  name       String
+  email      String?
+  phone      String?
+  notes      String?
+  isFavorite Boolean           @default(false)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  company    Company           @relation(fields: [companyId], references: [id])
   addresses  CustomerAddress[]
   orders     Order[]
   payments   Payment[]
@@ -144,104 +116,81 @@ model Customer {
   @@index([companyId, email])
 }
 
-
 model CustomerAddress {
   id         Int      @id @default(autoincrement())
   customerId Int
-
   label      String?
   address    String
   city       String?
   state      String?
   postalCode String?
   country    String?
-
   isDefault  Boolean  @default(false)
-
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([customerId])
 }
 
-
 model Category {
-  id        Int      @id @default(autoincrement())
-  companyId Int
-  parentId  Int?
-
+  id          Int        @id @default(autoincrement())
+  companyId   Int
+  parentId    Int?
   name        String
   description String?
-  status      String  @default("ACTIVE")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company  Company   @relation(fields: [companyId], references: [id])
-  parent   Category? @relation("CategoryChildren", fields: [parentId], references: [id])
-  children Category[] @relation("CategoryChildren")
-
-  products Product[]
+  status      String     @default("ACTIVE")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  company     Company    @relation(fields: [companyId], references: [id])
+  parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryChildren")
+  products    Product[]
 
   @@unique([companyId, name])
   @@index([companyId])
   @@index([parentId])
 }
 
-
 model Brand {
-  id        Int      @id @default(autoincrement())
-  companyId Int
-
+  id          Int       @id @default(autoincrement())
+  companyId   Int
   name        String
   description String?
-  status      String @default("ACTIVE")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company  Company   @relation(fields: [companyId], references: [id])
-  products Product[]
+  status      String    @default("ACTIVE")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  company     Company   @relation(fields: [companyId], references: [id])
+  products    Product[]
 
   @@unique([companyId, name])
   @@index([companyId])
 }
 
-
 model Product {
-  id        Int      @id @default(autoincrement())
-  companyId Int
-
-  categoryId Int?
-  brandId    Int?
-
+  id            Int               @id @default(autoincrement())
+  companyId     Int
+  categoryId    Int?
+  brandId       Int?
   name          String
   sku           String
   barcode       String?
-
-  purchasePrice Decimal @db.Decimal(12, 2)
-  sellingPrice  Decimal @db.Decimal(12, 2)
-  discount      Decimal @default(0) @db.Decimal(12, 2)
-
-  description String?
-  status      String  @default("ACTIVE")
-
-  deletedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company  Company  @relation(fields: [companyId], references: [id])
-  category Category? @relation(fields: [categoryId], references: [id])
-  brand    Brand?    @relation(fields: [brandId], references: [id])
-
-  variants ProductVariant[]
-  images   ProductImage[]
-  orderItems OrderItem[]
+  purchasePrice Decimal           @db.Decimal(12, 2)
+  sellingPrice  Decimal           @db.Decimal(12, 2)
+  discount      Decimal           @default(0) @db.Decimal(12, 2)
+  description   String?
+  status        String            @default("ACTIVE")
+  deletedAt     DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
   inventoryLogs InventoryLog[]
-  adjustments StockAdjustment[]
+  orderItems    OrderItem[]
+  brand         Brand?            @relation(fields: [brandId], references: [id])
+  category      Category?         @relation(fields: [categoryId], references: [id])
+  company       Company           @relation(fields: [companyId], references: [id])
+  images        ProductImage[]
+  variants      ProductVariant[]
+  adjustments   StockAdjustment[]
 
   @@unique([companyId, sku])
   @@index([companyId])
@@ -250,34 +199,26 @@ model Product {
   @@index([brandId])
 }
 
-
 model ProductVariant {
-  id        Int      @id @default(autoincrement())
-  companyId Int
-  productId Int
-
-  name    String
-  sku     String
-  barcode String?
-
-  color String?
-  size  String?
-
-  purchasePrice Decimal? @db.Decimal(12, 2)
-  sellingPrice  Decimal? @db.Decimal(12, 2)
-  discount      Decimal  @default(0) @db.Decimal(12, 2)
-
-  stock Int @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company Company @relation(fields: [companyId], references: [id])
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
+  id            Int               @id @default(autoincrement())
+  companyId     Int
+  productId     Int
+  name          String
+  sku           String
+  barcode       String?
+  color         String?
+  size          String?
+  purchasePrice Decimal?          @db.Decimal(12, 2)
+  sellingPrice  Decimal?          @db.Decimal(12, 2)
+  discount      Decimal           @default(0) @db.Decimal(12, 2)
+  stock         Int               @default(0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
   inventoryLogs InventoryLog[]
-  adjustments StockAdjustment[]
-  orderItems OrderItem[]
+  orderItems    OrderItem[]
+  company       Company           @relation(fields: [companyId], references: [id])
+  product       Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  adjustments   StockAdjustment[]
 
   @@unique([companyId, sku])
   @@index([companyId])
@@ -285,46 +226,36 @@ model ProductVariant {
   @@index([companyId, barcode])
 }
 
-
 model ProductImage {
   id        Int      @id @default(autoincrement())
   productId Int
-
   url       String
   altText   String?
   isPrimary Boolean  @default(false)
-
   createdAt DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
 }
 
-
 model InventoryLog {
-  id        Int @id @default(autoincrement())
-  companyId Int
-  productId Int
-  variantId Int?
-  userId    Int
-
-  type      String
-  quantity  Int
+  id            Int             @id @default(autoincrement())
+  companyId     Int
+  productId     Int
+  variantId     Int?
+  userId        Int
+  type          String
+  quantity      Int
   previousStock Int
   newStock      Int
-
   referenceType String?
   referenceId   Int?
-
-  note String?
-
-  createdAt DateTime @default(now())
-
-  company Company @relation(fields: [companyId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
-  variant ProductVariant? @relation(fields: [variantId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  note          String?
+  createdAt     DateTime        @default(now())
+  company       Company         @relation(fields: [companyId], references: [id])
+  product       Product         @relation(fields: [productId], references: [id])
+  user          User            @relation(fields: [userId], references: [id])
+  variant       ProductVariant? @relation(fields: [variantId], references: [id])
 
   @@index([companyId])
   @@index([productId])
@@ -332,61 +263,48 @@ model InventoryLog {
   @@index([createdAt])
 }
 
-
 model StockAdjustment {
-  id        Int @id @default(autoincrement())
+  id        Int             @id @default(autoincrement())
   companyId Int
   productId Int
   variantId Int?
   userId    Int
-
-  quantity Int
-  type     String
-  reason   String?
-
-  createdAt DateTime @default(now())
-
-  company Company @relation(fields: [companyId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
-  variant ProductVariant? @relation(fields: [variantId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  quantity  Int
+  type      String
+  reason    String?
+  createdAt DateTime        @default(now())
+  company   Company         @relation(fields: [companyId], references: [id])
+  product   Product         @relation(fields: [productId], references: [id])
+  user      User            @relation(fields: [userId], references: [id])
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
 
   @@index([companyId])
   @@index([productId])
   @@index([variantId])
 }
 
-
 model Order {
-  id        Int @id @default(autoincrement())
-  companyId Int
-  customerId Int?
-  createdBy Int
-
-  orderNumber String
-
-  status String @default("DRAFT")
-
-  subtotal       Decimal @db.Decimal(12, 2)
-  discount       Decimal @default(0) @db.Decimal(12, 2)
-  vat            Decimal @default(0) @db.Decimal(12, 2)
-  deliveryCharge Decimal @default(0) @db.Decimal(12, 2)
-
-  total Decimal @db.Decimal(12, 2)
-
-  paidAmount Decimal @default(0) @db.Decimal(12, 2)
-  dueAmount  Decimal @default(0) @db.Decimal(12, 2)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company  Company @relation(fields: [companyId], references: [id])
-  customer Customer? @relation(fields: [customerId], references: [id])
-  user     User @relation(fields: [createdBy], references: [id])
-
-  items    OrderItem[]
-  payments Payment[]
-  invoice  Invoice?
+  id             Int         @id @default(autoincrement())
+  companyId      Int
+  customerId     Int?
+  createdBy      Int
+  orderNumber    String
+  status         String      @default("DRAFT")
+  subtotal       Decimal     @db.Decimal(12, 2)
+  discount       Decimal     @default(0) @db.Decimal(12, 2)
+  vat            Decimal     @default(0) @db.Decimal(12, 2)
+  deliveryCharge Decimal     @default(0) @db.Decimal(12, 2)
+  total          Decimal     @db.Decimal(12, 2)
+  paidAmount     Decimal     @default(0) @db.Decimal(12, 2)
+  dueAmount      Decimal     @default(0) @db.Decimal(12, 2)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  invoice        Invoice?
+  company        Company     @relation(fields: [companyId], references: [id])
+  user           User        @relation(fields: [createdBy], references: [id])
+  customer       Customer?   @relation(fields: [customerId], references: [id])
+  items          OrderItem[]
+  payments       Payment[]
 
   @@unique([companyId, orderNumber])
   @@index([companyId])
@@ -395,198 +313,150 @@ model Order {
   @@index([customerId])
 }
 
-
 model OrderItem {
-  id        Int @id @default(autoincrement())
+  id        Int             @id @default(autoincrement())
   orderId   Int
   productId Int
   variantId Int?
-
-  quantity Int
-
-  unitPrice Decimal @db.Decimal(12, 2)
-  discount  Decimal @default(0) @db.Decimal(12, 2)
-  total     Decimal @db.Decimal(12, 2)
-
-  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
-  variant ProductVariant? @relation(fields: [variantId], references: [id])
+  quantity  Int
+  unitPrice Decimal         @db.Decimal(12, 2)
+  discount  Decimal         @default(0) @db.Decimal(12, 2)
+  total     Decimal         @db.Decimal(12, 2)
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product         @relation(fields: [productId], references: [id])
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
 
   @@index([orderId])
   @@index([productId])
   @@index([variantId])
 }
 
-
 model Payment {
-  id         Int @id @default(autoincrement())
-
-  companyId  Int
-  orderId    Int
-  customerId Int?
-  receivedBy Int
-
-  amount Decimal @db.Decimal(12, 2)
-
-  paymentMethod       String
+  id                   Int       @id @default(autoincrement())
+  companyId            Int
+  orderId              Int
+  customerId           Int?
+  receivedBy           Int
+  amount               Decimal   @db.Decimal(12, 2)
+  paymentMethod        String
   transactionReference String?
-
-  status String @default("COMPLETED")
-
-  note String?
-
-  paidAt    DateTime?
-  createdAt DateTime @default(now())
-
-  company  Company @relation(fields: [companyId], references: [id])
-  order    Order @relation(fields: [orderId], references: [id])
-  customer Customer? @relation(fields: [customerId], references: [id])
-  user     User @relation(fields: [receivedBy], references: [id])
+  status               String    @default("COMPLETED")
+  note                 String?
+  paidAt               DateTime?
+  createdAt            DateTime  @default(now())
+  company              Company   @relation(fields: [companyId], references: [id])
+  customer             Customer? @relation(fields: [customerId], references: [id])
+  order                Order     @relation(fields: [orderId], references: [id])
+  user                 User      @relation(fields: [receivedBy], references: [id])
 
   @@index([companyId])
   @@index([orderId])
   @@index([customerId])
 }
 
-
 model Invoice {
-  id        Int @id @default(autoincrement())
-  companyId Int
-  orderId   Int
-
-  invoiceNumber String
-  status        String @default("DRAFT")
-
-  subtotal       Decimal @db.Decimal(12, 2)
-  discount       Decimal @default(0) @db.Decimal(12, 2)
-  vat            Decimal @default(0) @db.Decimal(12, 2)
-  deliveryCharge Decimal @default(0) @db.Decimal(12, 2)
-  total          Decimal @db.Decimal(12, 2)
-
-  issuedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company Company @relation(fields: [companyId], references: [id])
-  order   Order   @relation(fields: [orderId], references: [id])
+  id             Int       @id @default(autoincrement())
+  companyId      Int
+  orderId        Int       @unique
+  invoiceNumber  String
+  status         String    @default("DRAFT")
+  subtotal       Decimal   @db.Decimal(12, 2)
+  discount       Decimal   @default(0) @db.Decimal(12, 2)
+  vat            Decimal   @default(0) @db.Decimal(12, 2)
+  deliveryCharge Decimal   @default(0) @db.Decimal(12, 2)
+  total          Decimal   @db.Decimal(12, 2)
+  issuedAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  company        Company   @relation(fields: [companyId], references: [id])
+  order          Order     @relation(fields: [orderId], references: [id])
 
   @@unique([companyId, invoiceNumber])
-  @@unique([orderId])
   @@index([companyId])
 }
 
-
 model ExpenseCategory {
-  id        Int @id @default(autoincrement())
-  companyId Int
-
+  id          Int       @id @default(autoincrement())
+  companyId   Int
   name        String
   description String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company  Company @relation(fields: [companyId], references: [id])
-  expenses Expense[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  expenses    Expense[]
+  company     Company   @relation(fields: [companyId], references: [id])
 
   @@unique([companyId, name])
   @@index([companyId])
 }
 
-
 model Expense {
-  id         Int @id @default(autoincrement())
-  companyId  Int
-  categoryId Int
-  createdBy  Int
-
-  title       String
-  description String?
-
-  amount Decimal @db.Decimal(12, 2)
-
-  paymentMethod  String?
+  id              Int             @id @default(autoincrement())
+  companyId       Int
+  categoryId      Int
+  createdBy       Int
+  title           String
+  description     String?
+  amount          Decimal         @db.Decimal(12, 2)
+  paymentMethod   String?
   referenceNumber String?
-
-  expenseDate DateTime
-
-  status String @default("PAID")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company  Company         @relation(fields: [companyId], references: [id])
-  category ExpenseCategory @relation(fields: [categoryId], references: [id])
-  user     User            @relation(fields: [createdBy], references: [id])
+  expenseDate     DateTime
+  status          String          @default("PAID")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  category        ExpenseCategory @relation(fields: [categoryId], references: [id])
+  company         Company         @relation(fields: [companyId], references: [id])
+  user            User            @relation(fields: [createdBy], references: [id])
 
   @@index([companyId])
   @@index([categoryId])
   @@index([expenseDate])
 }
 
-
 model Notification {
-  id        Int @id @default(autoincrement())
-  companyId Int
-  userId    Int
-
-  type    String
-  title   String
-  message String
-
-  isRead Boolean @default(false)
-
+  id            Int      @id @default(autoincrement())
+  companyId     Int
+  userId        Int
+  type          String
+  title         String
+  message       String
+  isRead        Boolean  @default(false)
   referenceType String?
   referenceId   Int?
-
-  createdAt DateTime @default(now())
-
-  company Company @relation(fields: [companyId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+  company       Company  @relation(fields: [companyId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
 
   @@index([companyId])
   @@index([userId, isRead])
   @@index([createdAt])
 }
 
-
 model Activity {
-  id        Int @id @default(autoincrement())
-  companyId Int
-  userId    Int?
-
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  userId      Int?
   action      String
-
-  entityType String?
-  entityId   Int?
-
+  entityType  String?
+  entityId    Int?
   description String?
-
-  ipAddress String?
-  userAgent String?
-
-  createdAt DateTime @default(now())
-
-  company Company @relation(fields: [companyId], references: [id])
-  user    User?   @relation(fields: [userId], references: [id])
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  company     Company  @relation(fields: [companyId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
 
   @@index([companyId, createdAt])
   @@index([userId])
 }
 
-
 model Setting {
-  id        Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   companyId Int
-
-  key   String
-  value String?
-
+  key       String
+  value     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  company Company @relation(fields: [companyId], references: [id])
+  company   Company  @relation(fields: [companyId], references: [id])
 
   @@unique([companyId, key])
   @@index([companyId])

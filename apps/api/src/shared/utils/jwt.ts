@@ -1,4 +1,5 @@
-import jwt, { Secret, SignOptions } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import type { Secret, SignOptions } from "jsonwebtoken";
 
 const accessSecret: Secret = process.env.JWT_ACCESS_SECRET!;
 const refreshSecret: Secret = process.env.JWT_REFRESH_SECRET!;
