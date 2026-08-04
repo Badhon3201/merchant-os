@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import prisma from "./database/prisma";
 import authRoutes from "./modules/auth/auth.routes";
 import companyRoutes from "./modules/company/company.routes";
+import roleRoutes from "./modules/role/role.route";
+import permissionRoutes from "./modules/permission/permission.route";
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.get("/health", (_, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/company", companyRoutes);
+app.use("/api/roles", roleRoutes);
+app.use("/api/permissions", permissionRoutes);
 
 const PORT = process.env.PORT || 5004;
 
