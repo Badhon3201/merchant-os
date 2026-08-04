@@ -63,6 +63,27 @@
             }
         }
 
+        async me(req: Request, res: Response) {
+            try {
+                const userId = (req as any).user.id;
+
+                const result = await authService.me(userId);
+
+                return successResponse(
+                    res,
+                    "User fetched successfully",
+                    result,
+                    200
+                );
+            } catch (error: any) {
+                return errorResponse(
+                    res,
+                    error.message,
+                    400
+                );
+            }
+        }
+
         async logout(
             req: Request,
             res: Response,

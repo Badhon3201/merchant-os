@@ -3,6 +3,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import prisma from "./database/prisma";
 import authRoutes from "./modules/auth/auth.routes";
+import companyRoutes from "./modules/company/company.routes";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.get("/health", (_, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/company", companyRoutes);
 
 const PORT = process.env.PORT || 5004;
 

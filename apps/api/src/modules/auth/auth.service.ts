@@ -113,6 +113,16 @@
                 message: "Logout successful",
             };
         }
+        
+        async me(userId: number) {
+            const user = await authRepository.findById(userId);
+
+            if (!user) {
+                throw new Error("User not found");
+            }
+
+            return user;
+        }
     }
 
     export default new AuthService();

@@ -6,18 +6,18 @@
 
         // find user by email and companyId
         async findByEmail(companyId: number, email: string) {
-        return prisma.user.findUnique({
-            where: {
-                companyId_email: {
-                    companyId,
-                    email,
-                },
-                },
-                include: {
-                    company: true,
-                    role: true,
-                }
-            });
+            return prisma.user.findUnique({
+                where: {
+                    companyId_email: {
+                        companyId,
+                        email,
+                    },
+                    },
+                    include: {
+                        company: true,
+                        role: true,
+                    }
+                });
         }
 
         // find by user id and companyId

@@ -13,6 +13,7 @@
     router.post("/login", (req, res) =>
         authController.login(req, res)
     );
+    router.get( "/me", authMiddleware, authController.me);
 
     router.post("/logout", authMiddleware, authController.logout);
 
