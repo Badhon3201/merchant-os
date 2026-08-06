@@ -1,4 +1,5 @@
 import AppProvider from "@/providers/app-provider";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -8,7 +9,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AppProvider>{children}</AppProvider>
+        <AppProvider>
+          {children}
+          <Toaster richColors position="top-right" />
+        </AppProvider>
       </body>
     </html>
   );

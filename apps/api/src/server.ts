@@ -12,6 +12,20 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+  const allowOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+  res.header("Access-Control-Allow-Origin", allowOrigin);
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
+
 app.get("/db-test", async (_, res) => {
   const result = await prisma.$queryRaw`SELECT NOW()`;
 
