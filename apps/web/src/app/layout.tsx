@@ -1,3 +1,4 @@
+import "./globals.css";
 import AppProvider from "@/providers/app-provider";
 import { Toaster } from "sonner";
 
@@ -8,7 +9,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         <AppProvider>
           {children}
           <Toaster richColors position="top-right" />

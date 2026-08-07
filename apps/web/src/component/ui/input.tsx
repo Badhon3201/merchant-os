@@ -10,13 +10,13 @@ export default function Input({
 }: Props) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium">
+      <label className="mb-2 block text-sm font-medium text-slate-700">
         {label}
       </label>
 
       <input
         {...props}
-        className="w-full rounded-lg border p-3 outline-none focus:border-blue-600"
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
       />
     </div>
   );
